@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class MazeManager : SingletonMonoBehaviour<MazeManager>
 {
@@ -11,7 +9,7 @@ public class MazeManager : SingletonMonoBehaviour<MazeManager>
     
     private readonly int maxMazeSize = 50;
 
-    private MazeGenerationBase mazeGeneration = new RandomizedDST();
+    private MazeGenerationBase mazeGeneration = new SimplifiedPrims();
     
     
     
