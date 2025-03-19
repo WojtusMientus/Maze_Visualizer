@@ -1,41 +1,80 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public abstract class MazeGenerationBase
 {
-    protected readonly HashSet<Vector2Int> visitedNodes = new HashSet<Vector2Int>();
+
     protected readonly List<Vector2Int> neighbours = new List<Vector2Int>();
     
-    public abstract void GenerateMaze();
+    protected Vector2Int previousNode;
+    protected Vector2Int currentNode;
+    
+    
+    public abstract Task GenerateMaze();
 
-    protected virtual void CleanHelperDSA()
+    protected virtual void CleanHelperDataStructures()
     {
-        visitedNodes.Clear();
+        neighbours.Clear();
     }
 
-    protected virtual void GetAvailableNeighbourNodes(Vector2Int currentNode)
+    protected abstract void GenerateMazeStep();
+    
+    protected async Task GenerateMazeStepWithDelay()
+    {
+        GenerateMazeStep();
+        await Task.Delay(MazeFlowManager.Instance.CurrentGenerationMillisecondDelay);
+    }
+
+    protected void UpdateVisualPreviousNode()
+    {
+        if (!MazeManagerHelperFunction.WasAlreadyInNode(previousNode))
+        {
+            MazeVisualizer.Instance.SetVisualTintDefault(previousNode);
+            return;
+        }
+        
+        if (neighbours.Count != 0)
+            MazeVisualizer.Instance.SetVisualTintVisited(previousNode);
+        else
+            MazeVisualizer.Instance.SetVisualTintFinished(previousNode);
+    }
+
+    protected void UpdatePreviousNodeValue()
+    {
+        previousNode = currentNode;
+    }
+    
+    protected virtual void GetAvailableNeighbourNodes(Vector2Int node, Func<Vector2Int, bool> IsNeighbourFunction)
     {
         neighbours.Clear();
 
         for (int x = -1; x <= 1; x += 2)
         {
-            Vector2Int neighbour = new Vector2Int(x + currentNode.x, currentNode.y);
-            if (IsNeighbour(neighbour))
+            Vector2Int neighbour = new Vector2Int(x + node.x, node.y);
+            if (IsNeighbourFunction(neighbour))
                 neighbours.Add(neighbour);
         }
         
         for (int y = -1; y <= 1; y += 2)
         {
-            Vector2Int neighbour = new Vector2Int(currentNode.x, y + currentNode.y);
-            if (IsNeighbour(neighbour))
+            Vector2Int neighbour = new Vector2Int(node.x, y + node.y);
+            if (IsNeighbourFunction(neighbour))
                 neighbours.Add(neighbour);
         }
     }
-
-    protected virtual bool IsNeighbour(Vector2Int neighbour)
-    {
-        return true;
-    }
-        
     
+    protected void OnMazeGenerationFinish()
+    {
+        EventManager.RaiseOnMazeGenerationEnd();
+    }
+
+    protected virtual void AddToUnfinishedNodes(Vector2Int node)
+    {
+    }
+
+    protected virtual void AddToFinishedNodesAndRemoveFromUnfinished(Vector2Int node)
+    {
+    }
 }

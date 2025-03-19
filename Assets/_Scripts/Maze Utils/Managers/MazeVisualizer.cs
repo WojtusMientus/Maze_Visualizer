@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
+
 
 public class MazeVisualizer : SingletonMonoBehaviour<MazeVisualizer>
 {
@@ -7,8 +9,14 @@ public class MazeVisualizer : SingletonMonoBehaviour<MazeVisualizer>
     [SerializeField] private MazeSprites sprites;
     [SerializeField] private GameObject visualPrefab;
     
-    private readonly Dictionary<Vector2Int, SpriteRenderer> visualNodes = new Dictionary<Vector2Int, SpriteRenderer>();
+    private readonly Dictionary<Vector2Int, VisualNode> visualNodes = new Dictionary<Vector2Int, VisualNode>();
 
+    [Header("Visual Tints")]    
+    [SerializeField] private Color defaultTint;
+    [SerializeField] private Color startingNodeTint;
+    [SerializeField] private Color visitedTint;
+    [SerializeField] private Color finishedTint;
+    
     protected override void Awake()
     {
         base.Awake();
@@ -17,16 +25,16 @@ public class MazeVisualizer : SingletonMonoBehaviour<MazeVisualizer>
     public void CreateVisualNode(Vector2Int nodePosition)
     {
         Vector3 spawnPosition = new Vector3(nodePosition.x, nodePosition.y, 0);
-        SpriteRenderer visualNode = Instantiate(visualPrefab, spawnPosition, Quaternion.identity, this.transform).GetComponent<SpriteRenderer>();
+        VisualNode visualNode = Instantiate(visualPrefab, spawnPosition, Quaternion.identity, this.transform).GetComponent<VisualNode>();
         
-        visualNode.sprite = sprites.noOpenSidesSprite;
+        visualNode.SetSprite(sprites.noOpenSidesSprite);
         visualNodes.Add(nodePosition, visualNode);
     }
 
     public void CreateVisualConnection(MazeNode nodeFrom, MazeNode nodeTo)
     {
-        ResetVisualNodeRotation(nodeFrom.Position);
-        ResetVisualNodeRotation(nodeTo.Position);
+        visualNodes[nodeFrom.Position].ResetSpriteRotation();
+        visualNodes[nodeTo.Position].ResetSpriteRotation();
         
         int numberOrConnections = nodeFrom.GetNumberOfConnections();
         SelectNewSprite(nodeFrom, numberOrConnections);
@@ -34,28 +42,23 @@ public class MazeVisualizer : SingletonMonoBehaviour<MazeVisualizer>
         numberOrConnections = nodeTo.GetNumberOfConnections();
         SelectNewSprite(nodeTo, numberOrConnections);
     }
-
-    private void ResetVisualNodeRotation(Vector2Int nodePosition)
-    {
-        UpdateSpriteRotation(nodePosition, 0);
-    }
     
-    private void SelectNewSprite(MazeNode node, int numberOrConnections)
+    private void SelectNewSprite(MazeNode node, int numberOfOpennings)
     {
-        if (numberOrConnections == 4)
+        if (numberOfOpennings == 4)
             ChangeSprite(node.Position, sprites.allOpenSidesSprite);
 
-        else if (numberOrConnections == 3 || numberOrConnections == 1)
-            ChangeSpriteToOneOpeningOrThree(node, numberOrConnections == 1);
+        else if (numberOfOpennings == 3 || numberOfOpennings == 1)
+            ChangeSpriteToOneOpeningOrThree(node, numberOfOpennings == 1);
         
-        else if (numberOrConnections == 2)
+        else if (numberOfOpennings == 2)
             ChangeSpriteToTwoOpenings(node);
     }
     
     private void ChangeSprite(Vector2Int nodePosition, Sprite newSprite, int rotation = 0)
     {
-        visualNodes[nodePosition].sprite = newSprite;
-        UpdateSpriteRotation(nodePosition, rotation);
+        visualNodes[nodePosition].SetSprite(newSprite);
+        visualNodes[nodePosition].UpdateSpriteRotation(rotation);
     }
     
     private void ChangeSpriteToOneOpeningOrThree(MazeNode node, bool oneOpening)
@@ -66,7 +69,7 @@ public class MazeVisualizer : SingletonMonoBehaviour<MazeVisualizer>
         {
             if (node.Connections[i] == oneOpening)
             {
-                ChangeSprite(node.Position, newSprite, i);
+                visualNodes[node.Position].SetSprite(newSprite, i);
                 break;
             }
         }
@@ -84,7 +87,7 @@ public class MazeVisualizer : SingletonMonoBehaviour<MazeVisualizer>
                 if (newSprite == sprites.cornerSprite)
                     correctRotation = AdjustSpriteRotation(node, i);
                 
-                ChangeSprite(node.Position, newSprite, correctRotation);
+                visualNodes[node.Position].SetSprite(newSprite, correctRotation);
                 break;
             }
         }
@@ -109,16 +112,35 @@ public class MazeVisualizer : SingletonMonoBehaviour<MazeVisualizer>
         
         return currentRotation;
     }
-    
-    private void UpdateSpriteRotation(Vector2Int nodePosition, int rotation)
-    {
-        visualNodes[nodePosition].transform.rotation = Quaternion.Euler(0, 0, -90f * rotation);
-    }
-
-
 
     public void ResetVisualNode(Vector2Int nodePosition)
     {
         ChangeSprite(nodePosition, sprites.noOpenSidesSprite);
+        SetVisualTintDefault(nodePosition);
+    }
+
+    public void SetVisualTintDefault(Vector2Int nodePosition)
+    {
+        SetVisualTint(nodePosition, defaultTint);
+    }
+    
+    public void SetVisualTintFinished(Vector2Int nodePosition)
+    {
+        SetVisualTint(nodePosition, finishedTint);
+    }
+
+    public void SetVisualTintVisited(Vector2Int nodePosition)
+    {
+        SetVisualTint(nodePosition, visitedTint);
+    }
+
+    public void SetVisualTintCurrentNode(Vector2Int nodePosition)
+    {
+        SetVisualTint(nodePosition, startingNodeTint);
+    }
+    
+    private void SetVisualTint(Vector2Int nodePosition, Color newTint)
+    {
+        visualNodes[nodePosition].SetTint(newTint);
     }
 }

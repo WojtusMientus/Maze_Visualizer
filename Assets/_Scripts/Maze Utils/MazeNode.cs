@@ -7,6 +7,7 @@ public class MazeNode
     # region PROPERTIES
     public Vector2Int Position { get; private set; }
     public bool IsReachable { get; private set; }
+    public bool WasVisited { get; private set; }
     
     // Order of connections - Up, Right, Down, Left (Clockwise)
     public bool[] Connections { get; private set; }
@@ -64,6 +65,13 @@ public class MazeNode
     {
         for (int i = 0; i < Connections.Length; i++)
             Connections[i] = false;
+        
+        WasVisited = false;
+    }
+
+    public void MarkAsVisited()
+    {
+        WasVisited = true;
     }
     
     #endregion

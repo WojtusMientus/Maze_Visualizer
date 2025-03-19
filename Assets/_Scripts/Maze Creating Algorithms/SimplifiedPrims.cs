@@ -1,56 +1,81 @@
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class SimplifiedPrims : MazeGenerationBase
 {
+    private readonly HashSet<Vector2Int> finishedNodes = new HashSet<Vector2Int>();
     private readonly OrderedDictionary unfinishedNodes = new OrderedDictionary();
     
     
-    public override void GenerateMaze()
+    public override async Task GenerateMaze()
     {
-        Vector2Int startingNode = MazeManager.Instance.GetRandomStartingPosition();
+        Vector2Int startingNode = MazeFlowManager.Instance.StartingPosition;
+        currentNode = startingNode;
         
-        unfinishedNodes.Add(startingNode, startingNode);
-
-        while (unfinishedNodes.Count > 0)
-        {
-            int randomIndex = Random.Range(0, unfinishedNodes.Count);
-            Vector2Int randomUnfinishedNode = (Vector2Int)unfinishedNodes[randomIndex];
-            
-            GetAvailableNeighbourNodes(randomUnfinishedNode);
-            CheckNeighbours(ref randomUnfinishedNode);
-        }
+        AddToUnfinishedNodes(startingNode);
         
-        CleanHelperDSA();
+        while (unfinishedNodes.Count > 0 && !MazeFlowManager.Instance.StopMazeGeneration)
+            await GenerateMazeStepWithDelay();
+        
+        OnMazeGenerationFinish();
+        CleanHelperDataStructures();
     }
 
-    protected override void CleanHelperDSA()
+    protected override void GenerateMazeStep()
     {
-        base.CleanHelperDSA();
+        UpdatePreviousNodeValue();
+        
+        int randomIndex = Random.Range(0, unfinishedNodes.Count);
+        currentNode = (Vector2Int)unfinishedNodes[randomIndex];
+        
+        MazeVisualizer.Instance.SetVisualTintCurrentNode(currentNode);
+        UpdateVisualPreviousNode();
+        
+        GetAvailableNeighbourNodes(currentNode, IsNeighbour);
+        CheckNeighbours(currentNode);
+    }
+    
+    protected override void CleanHelperDataStructures()
+    {
+        base.CleanHelperDataStructures();
+        finishedNodes.Clear();
         unfinishedNodes.Clear();
     }
 
-    protected override bool IsNeighbour(Vector2Int neighbour)
+
+    private bool IsNeighbour(Vector2Int neighbour)
     {
-        return !visitedNodes.Contains(neighbour) && !unfinishedNodes.Contains(neighbour) &&
+        return !finishedNodes.Contains(neighbour) && !unfinishedNodes.Contains(neighbour) &&
                MazeManagerHelperFunction.IsInMazeBounds(neighbour);
     }
 
-    private void CheckNeighbours(ref Vector2Int currentNode)
+    private void CheckNeighbours(Vector2Int node)
     {
         if (neighbours.Count == 0)
         {
-            visitedNodes.Add(currentNode);
-            unfinishedNodes.Remove(currentNode);
+            AddToFinishedNodesAndRemoveFromUnfinished(node);
             return;
         }
         
         int randomIndex = Random.Range(0, neighbours.Count);
-        unfinishedNodes.Add(neighbours[randomIndex], neighbours[randomIndex]);
-
-        (MazeNode fromNode, MazeNode toNode) = MazeManagerHelperFunction.GetNodesFromVector2Int(currentNode, neighbours[randomIndex]);
+        AddToUnfinishedNodes(neighbours[randomIndex]);
+        
+        (MazeNode fromNode, MazeNode toNode) = MazeManagerHelperFunction.GetNodesFromVector2Int(node, neighbours[randomIndex]);
         MazeManagerHelperFunction.UpdateNodesAndVisualNodes(fromNode, toNode);
     }
-    
-    
+
+    protected override void AddToUnfinishedNodes(Vector2Int node)
+    {
+        unfinishedNodes.Add(node, node);
+        
+        MazeVisualizer.Instance.SetVisualTintVisited(node);
+        MazeManagerHelperFunction.MarkNodeAsVisited(node);
+    }
+    protected override void AddToFinishedNodesAndRemoveFromUnfinished(Vector2Int node)
+    {
+        finishedNodes.Add(node);
+        unfinishedNodes.Remove(node);
+    }
 }
