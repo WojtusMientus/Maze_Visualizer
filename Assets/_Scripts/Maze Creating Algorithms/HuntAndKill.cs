@@ -123,7 +123,12 @@ public class HuntAndKill: MazeGenerationBase
         currentNode = neighbours[randomUnvisitedNeighbourIndex];
         MazeManagerHelperFunction.MarkNodeAsVisited(currentNode);
     }
-    
+
+    public override void OnMazeReset()
+    {
+        MazeVisualizer.Instance.SetVisualTintDefault(currentNode);
+    }
+
     #endregion
     
 }

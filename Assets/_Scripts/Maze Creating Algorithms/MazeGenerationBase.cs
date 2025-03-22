@@ -77,6 +77,8 @@ public abstract class MazeGenerationBase
         EventManager.RaiseOnMazeGenerationEnd();
     }
 
+    public virtual void OnMazeReset() { }
+
     protected virtual void AddToUnfinishedNodes(Vector2Int node) { }
     protected virtual void AddToFinishedNodesAndRemoveFromUnfinished(Vector2Int node) { }
     

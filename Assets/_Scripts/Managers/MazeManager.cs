@@ -89,6 +89,7 @@ public class MazeManager : SingletonMonoBehaviour<MazeManager>
     public void ResetMaze()
     {
         ResetMazeDictionary();
+        currentMazeGenerationAlgo.OnMazeReset();
         MazeFlowManager.Instance.VisualizeStartingPoint(MazeFlowManager.Instance.StartingPosition);
     }
     

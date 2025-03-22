@@ -4502,6 +4502,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Button Exit
       objectReference: {fileID: 0}
+    - target: {fileID: 7602311188551921643, guid: c8bd63c52b5128f4ab6705905dc4abdc, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8111273346705549949, guid: c8bd63c52b5128f4ab6705905dc4abdc, type: 3}
       propertyPath: m_SizeDelta.x
       value: 70
