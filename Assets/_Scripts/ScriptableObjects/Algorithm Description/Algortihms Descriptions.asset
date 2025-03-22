@@ -20,7 +20,7 @@ MonoBehaviour:
       Choose unvisited neighbour at random\n\t\t- Make connection between current
       node and its selected neighbour\n\t\t- Push this neighbour to the stack and
       return to step 2"
-  - Title: Simplified Prism's
+  - Title: Simplified Prim's
     AlgoDescription: "1. Choose the initiall node, mark as visited and add it to
       visited nodes\n2. While there are nodes in the visited nodes:\n\t- Choose a
       visited node at random. If it has no unvisited neighbours:\n\t\t- Remove this
