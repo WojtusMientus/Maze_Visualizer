@@ -1,17 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Vector2Int = UnityEngine.Vector2Int;
 
 [DefaultExecutionOrder(0)]
 public class MazeManager : SingletonMonoBehaviour<MazeManager>
 {
+    
+    #region PROPERTIES
     public Dictionary<Vector2Int, MazeNode> MazeNodes { get; private set; }
-    
     public List<Vector2Int> VisitedNodes { get; private set; } = new List<Vector2Int>();
-    
     public int CurrentMazeSize { get; private set; }
     
-    private int previousMazeSize;
-    private readonly int maxMazeSize = 50;
+    #endregion
+    
+    
+    private readonly int maxMazeSize = 45;
 
     private readonly MazeGenerationScripts mazeGenerationScripts = new MazeGenerationScripts();
 
@@ -24,7 +27,7 @@ public class MazeManager : SingletonMonoBehaviour<MazeManager>
         
         currentMazeGenerationAlgo = mazeGenerationScripts.GetAlgoAtIndex(0);
         
-        CreateMazeNodes();
+        InitializeMazeNodes();
     }
 
     private void OnEnable()
@@ -39,7 +42,10 @@ public class MazeManager : SingletonMonoBehaviour<MazeManager>
         EventManager.OnDropdownMazeSelectionChanged -= UpdateCurrentGenerationAlgo;
     }
     
-    private void CreateMazeNodes()
+    
+    #region METHODS
+    
+    private void InitializeMazeNodes()
     {        
         MazeNodes = new Dictionary<Vector2Int, MazeNode>();
         
@@ -57,33 +63,38 @@ public class MazeManager : SingletonMonoBehaviour<MazeManager>
     private void UpdateCurrentMazeSize(int currentSize)
     {
         CurrentMazeSize = currentSize;
+        ResetMaze();
     }
 
     public void GenerateMaze()
     {
-        ResetMaze();
+        ResetMazeDictionary();
         
-        previousMazeSize = CurrentMazeSize;
         EventManager.RaiseOnMazeGenerationStart();
         currentMazeGenerationAlgo.GenerateMaze();
     }
 
-    private void ResetMaze()
+
+    private void ResetMazeDictionary()
     {
-        Debug.Log(VisitedNodes.Count);
-        
-        foreach (Vector2Int vec in VisitedNodes)
+        foreach (Vector2Int vector in VisitedNodes)
         {
-            MazeNodes[vec].ResetNode();
-            MazeVisualizer.Instance.ResetVisualNode(vec);
+            MazeNodes[vector].ResetNode();
+            MazeVisualizer.Instance.ResetVisualNode(vector);
         }
         
         VisitedNodes.Clear();
     }
+
+    public void ResetMaze()
+    {
+        ResetMazeDictionary();
+        MazeFlowManager.Instance.VisualizeStartingPoint(MazeFlowManager.Instance.StartingPosition);
+    }
     
     public void ResetMazeAndSetRandomStartingPosition()
     {
-        ResetMaze();
+        ResetMazeDictionary();
         MazeFlowManager.Instance.SetRandomStartingPosition();
     }
     
@@ -91,30 +102,9 @@ public class MazeManager : SingletonMonoBehaviour<MazeManager>
     {
         currentMazeGenerationAlgo = mazeGenerationScripts.GetAlgoAtIndex(index);
     }
-    
 
-    // private void OnDrawGizmos()
-    // {
-    //     foreach (KeyValuePair<Vector2Int, MazeNode> kvp in MazeNodes)
-    //     {
-    //         Vector3 newPosition = new Vector3(kvp.Key.x, kvp.Key.y, 0);
-    //         Gizmos.DrawWireSphere(newPosition, 0.1f);
-    //         
-    //         MazeNode node = kvp.Value;
-    //
-    //         if (node.Connections[0])
-    //             Gizmos.DrawRay(newPosition, Vector3.up * .35f);
-    //         
-    //         if (node.Connections[1])
-    //             Gizmos.DrawRay(newPosition, Vector3.right * .35f);
-    //         
-    //         if (node.Connections[2])
-    //             Gizmos.DrawRay(newPosition, Vector3.down * .35f);
-    //         
-    //         if (node.Connections[3])
-    //             Gizmos.DrawRay(newPosition, Vector3.left * .35f);
-    //     }
-    // }
+    #endregion
+    
 }
 
 

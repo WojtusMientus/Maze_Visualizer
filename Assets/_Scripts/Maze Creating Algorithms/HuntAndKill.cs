@@ -3,8 +3,13 @@ using UnityEngine;
 
 public class HuntAndKill: MazeGenerationBase
 {
-    private bool shouldHunt;
-    private Vector2Int previousStartHuntPosition;
+    
+    private bool enterHuntMode;
+    private bool stopExecution;
+    private Vector2Int previousHuntStartPosition;
+    
+    
+    #region METHODS
     
     public override async Task GenerateMaze()
     {
@@ -12,31 +17,32 @@ public class HuntAndKill: MazeGenerationBase
         currentNode = startingNode;
         MazeManagerHelperFunction.MarkNodeAsVisited(currentNode);
         
-        while (MazeManagerHelperFunction.IsOutOfCurrentMazeBound(currentNode) && !MazeFlowManager.Instance.StopMazeGeneration)
+        while (!stopExecution && MazeFlowManager.Instance.IsGeneratingMaze)
             await GenerateMazeStepWithDelay();
-
+        
         OnMazeGenerationFinish();
         CleanHelperDataStructures();
     }
-
-    protected override void CleanHelperDataStructures()
-    {
-        base.CleanHelperDataStructures();
-        previousStartHuntPosition = Vector2Int.zero;
-        shouldHunt = false;
-    }
-
+    
     protected override void GenerateMazeStep()
     {
         UpdatePreviousNodeValue();
         
-        if (shouldHunt)
+        if (enterHuntMode)
             HuntForNextAvailableNode();
         else
             RandomWalk();
         
         UpdateVisualPreviousNode();
         MazeVisualizer.Instance.SetVisualTintCurrentNode(currentNode);
+    }
+    
+    protected override void CleanHelperDataStructures()
+    {
+        base.CleanHelperDataStructures();
+        previousHuntStartPosition = Vector2Int.zero;
+        enterHuntMode = false;
+        stopExecution = false;
     }
 
     private void HuntForNextAvailableNode()
@@ -49,7 +55,7 @@ public class HuntAndKill: MazeGenerationBase
         else
         {
             GetToTheNextHuntNode();
-            previousStartHuntPosition = currentNode;
+            previousHuntStartPosition = currentNode;
         }
     }
 
@@ -67,23 +73,27 @@ public class HuntAndKill: MazeGenerationBase
             return;
         }
         
-        int randomIndex = Random.Range(0, neighbours.Count);
-        
-        (MazeNode fromNode, MazeNode toNode) = MazeManagerHelperFunction.GetNodesFromVector2Int(node, neighbours[randomIndex]);
-        MazeManagerHelperFunction.UpdateNodesAndVisualNodes(fromNode, toNode);
+        int randomUnvisitedNeighbourIndex = Random.Range(0, neighbours.Count);
+        MazeManagerHelperFunction.UpdateNodesAndVisualNodes(node, neighbours[randomUnvisitedNeighbourIndex]);
         
         MazeManagerHelperFunction.MarkNodeAsVisited(currentNode);
-        shouldHunt = false;
+        enterHuntMode = false;
     }
 
     private void GetToTheNextHuntNode()
     {
         currentNode.x++;
-
+        
         if (currentNode.x >= MazeManager.Instance.CurrentMazeSize)
         {
             currentNode.x = 0;
             currentNode.y++;
+            
+            if (currentNode.y >= MazeManager.Instance.CurrentMazeSize)
+            {
+                currentNode = new Vector2Int(MazeManager.Instance.CurrentMazeSize - 1, MazeManager.Instance.CurrentMazeSize - 1);
+                stopExecution = true;
+            }
         }
     }
 
@@ -102,17 +112,18 @@ public class HuntAndKill: MazeGenerationBase
     {
         if (neighbours.Count == 0)
         {
-            shouldHunt = true;
-            currentNode = previousStartHuntPosition;
+            enterHuntMode = true;
+            currentNode = previousHuntStartPosition;
             return;
         }
         
-        int randomIndex = Random.Range(0, neighbours.Count);
+        int randomUnvisitedNeighbourIndex = Random.Range(0, neighbours.Count);
+        MazeManagerHelperFunction.UpdateNodesAndVisualNodes(node, neighbours[randomUnvisitedNeighbourIndex]);
         
-        (MazeNode fromNode, MazeNode toNode) = MazeManagerHelperFunction.GetNodesFromVector2Int(node, neighbours[randomIndex]);
-        MazeManagerHelperFunction.UpdateNodesAndVisualNodes(fromNode, toNode);
-        
-        currentNode = neighbours[randomIndex];
+        currentNode = neighbours[randomUnvisitedNeighbourIndex];
         MazeManagerHelperFunction.MarkNodeAsVisited(currentNode);
     }
+    
+    #endregion
+    
 }

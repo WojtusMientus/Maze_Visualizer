@@ -1,18 +1,22 @@
-using System;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 [DefaultExecutionOrder(1)]
 public class MazeFlowManager : SingletonMonoBehaviour<MazeFlowManager>
 {
-    private readonly int originalGenerationMillisecondDelay = 32;
+    
+    #region PROPERTIES
     public int CurrentGenerationMillisecondDelay { get; private set; }
     public Vector2Int StartingPosition { get; private set; }
-    public bool StopMazeGeneration { get; set; }
-    
+    public bool IsGeneratingMaze { get; set; }
+    public bool IsGenerationPaused { get; private set; }
 
+    #endregion
+    
+    private readonly int originalGenerationMillisecondDelay = 32;
+    
     private int currentSpeedModifierIndex = 4;
-    private readonly float[] generationSpeedModifiers = new float[] { 1/16f, 1/8f, 1/4f, 1/2f, 1, 2, 4, 8 };
+    private readonly float[] generationSpeedModifiers = { 1/16f, 1/8f, 1/4f, 1/2f, 1, 2, 4, 8 };
+    
     
     protected override void Awake()
     {
@@ -23,50 +27,95 @@ public class MazeFlowManager : SingletonMonoBehaviour<MazeFlowManager>
 
     private void Start()
     {
+        if (DataManager.HAS_SAVED_GENERATION_SPEED())
+            currentSpeedModifierIndex = DataManager.GET_SAVED_GENERATION_SPEED();
+        
+        UpdateCurrentSpeedModifier();
+        
         SetRandomStartingPosition();
     }
 
     private void OnEnable()
     {
-        EventManager.OnMazeGenerationStart += ResetStopMazeGenerationValue;
+        EventManager.OnMazeGenerationStart += OnStartMazeGenerationResetHelperValues;
+        EventManager.OnMazeGenerationEnd += OnEndMazeGenerationResetHelperValues;
     }
 
     private void OnDisable()
     {
-        EventManager.OnMazeGenerationStart -= ResetStopMazeGenerationValue;
+        EventManager.OnMazeGenerationStart -= OnStartMazeGenerationResetHelperValues;
+        EventManager.OnMazeGenerationEnd -= OnEndMazeGenerationResetHelperValues;
     }
 
+    
+    #region METHODS
+    
     public void SetRandomStartingPosition()
     {
         int randomStartingX = Random.Range(0, MazeManager.Instance.CurrentMazeSize);
         int randomStartingY = Random.Range(0, MazeManager.Instance.CurrentMazeSize);
 
-        MazeVisualizer.Instance.SetVisualTintDefault(StartingPosition);
-        StartingPosition = new Vector2Int(randomStartingX, randomStartingY);
-        MazeVisualizer.Instance.SetVisualTintCurrentNode(StartingPosition);
+        VisualizeStartingPoint(new Vector2Int(randomStartingX, randomStartingY));
     }
 
+    public void VisualizeStartingPoint(Vector2Int newStartingPosition)
+    {
+        MazeVisualizer.Instance.SetVisualTintDefault(StartingPosition);
+        StartingPosition = newStartingPosition;
+        MazeVisualizer.Instance.SetVisualTintCurrentNode(StartingPosition);
+    }
+    
     public void DecreaseGenerationSpeed()
     {
-        ChangeSpeedModifierIndex(1);
+        ChangeSpeedModifierIndexByValue(1);
     }
 
     public void IncreaseGenerationSpeed()
     {
-        ChangeSpeedModifierIndex(-1);
+        ChangeSpeedModifierIndexByValue(-1);
     }
 
-    private void ChangeSpeedModifierIndex(int i)
+    private void ChangeSpeedModifierIndexByValue(int index)
     {
-        currentSpeedModifierIndex += i;
+        currentSpeedModifierIndex += index;
         currentSpeedModifierIndex = Mathf.Clamp(currentSpeedModifierIndex, 0, generationSpeedModifiers.Length - 1);
+
+        UpdateCurrentSpeedModifier();
         
+        DataManager.SAVE_MAZE_GENERATION_SPEED(currentSpeedModifierIndex);
+    }
+
+    private void UpdateCurrentSpeedModifier()
+    {
         CurrentGenerationMillisecondDelay = (int)(originalGenerationMillisecondDelay * generationSpeedModifiers[currentSpeedModifierIndex]);
         EventManager.RaiseOnSpeedModifierChange(1 / generationSpeedModifiers[currentSpeedModifierIndex]);
     }
     
-    private void ResetStopMazeGenerationValue()
+    private void OnStartMazeGenerationResetHelperValues()
     {
-        StopMazeGeneration = false;
+        CheckIfCurrentStartingPositionInBounds();
+        
+        IsGeneratingMaze = true;
+        IsGenerationPaused = false;
     }
+
+    private void CheckIfCurrentStartingPositionInBounds()
+    {
+        if (!MazeManagerHelperFunction.IsInMazeBounds(StartingPosition))
+            SetRandomStartingPosition();
+    }
+
+    private void OnEndMazeGenerationResetHelperValues()
+    {
+        IsGeneratingMaze = false;
+    }
+    
+    public void PauseOrResumeMazeGeneration()
+    {
+        if (IsGeneratingMaze)
+            IsGenerationPaused = !IsGenerationPaused;
+    }
+
+    #endregion
+    
 }

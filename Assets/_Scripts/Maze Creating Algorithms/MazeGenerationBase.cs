@@ -6,11 +6,16 @@ using UnityEngine;
 public abstract class MazeGenerationBase
 {
 
-    protected readonly List<Vector2Int> neighbours = new List<Vector2Int>();
+    #region VARIABLES
     
-    protected Vector2Int previousNode;
+    protected readonly List<Vector2Int> neighbours = new List<Vector2Int>();
+
+    private Vector2Int previousNode;
     protected Vector2Int currentNode;
     
+    #endregion
+    
+    #region METHODS
     
     public abstract Task GenerateMaze();
 
@@ -23,7 +28,9 @@ public abstract class MazeGenerationBase
     
     protected async Task GenerateMazeStepWithDelay()
     {
-        GenerateMazeStep();
+        if (!MazeFlowManager.Instance.IsGenerationPaused)
+            GenerateMazeStep();
+        
         await Task.Delay(MazeFlowManager.Instance.CurrentGenerationMillisecondDelay);
     }
 
@@ -46,7 +53,7 @@ public abstract class MazeGenerationBase
         previousNode = currentNode;
     }
     
-    protected virtual void GetAvailableNeighbourNodes(Vector2Int node, Func<Vector2Int, bool> IsNeighbourFunction)
+    protected void GetAvailableNeighbourNodes(Vector2Int node, Func<Vector2Int, bool> IsNeighbourFunction)
     {
         neighbours.Clear();
 
@@ -70,11 +77,9 @@ public abstract class MazeGenerationBase
         EventManager.RaiseOnMazeGenerationEnd();
     }
 
-    protected virtual void AddToUnfinishedNodes(Vector2Int node)
-    {
-    }
-
-    protected virtual void AddToFinishedNodesAndRemoveFromUnfinished(Vector2Int node)
-    {
-    }
+    protected virtual void AddToUnfinishedNodes(Vector2Int node) { }
+    protected virtual void AddToFinishedNodesAndRemoveFromUnfinished(Vector2Int node) { }
+    
+    #endregion
+    
 }

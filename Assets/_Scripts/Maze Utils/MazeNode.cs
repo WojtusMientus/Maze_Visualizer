@@ -1,4 +1,3 @@
-using System.Linq;
 using UnityEngine;
 
 public class MazeNode
@@ -6,32 +5,20 @@ public class MazeNode
     
     # region PROPERTIES
     public Vector2Int Position { get; private set; }
-    public bool IsReachable { get; private set; }
     public bool WasVisited { get; private set; }
     
     // Order of connections - Up, Right, Down, Left (Clockwise)
     public bool[] Connections { get; private set; }
     
     #endregion
+
     
-    
-    #region CONSTRUCTORS
     public MazeNode(int xPosition, int yPosition, bool isReachable = true)
     {
         Position = new Vector2Int(xPosition, yPosition);
-        IsReachable = isReachable;
         Connections = new bool[4];
     }
     
-    public MazeNode(Vector2Int position, bool isReachable = true)
-    {
-        Position = position;
-        IsReachable = isReachable;
-        Connections = new bool[4];
-    }
-
-    #endregion
-
     
     # region METHODS
     public static void OpenConnectionBetweenNodes(MazeNode nodeFrom, MazeNode nodeTo)
@@ -58,7 +45,16 @@ public class MazeNode
         Connections[index] = true;
     }
 
-    public int GetNumberOfConnections() => Connections.Select(x => x ? 1 : 0).Sum();
+    public int GetNumberOfConnections()
+    {
+        int counter = 0;
+        
+        foreach (bool connection in Connections)
+            if (connection)
+                counter++;
+
+        return counter;
+    }
 
 
     public void ResetNode()

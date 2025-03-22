@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class SingletonMonoBehaviour<T> : MonoBehaviour where T : class
 {
+    
     public static T Instance;
 
     protected virtual void Awake()
@@ -11,4 +12,5 @@ public class SingletonMonoBehaviour<T> : MonoBehaviour where T : class
         else
             Destroy(this);
     }
+    
 }

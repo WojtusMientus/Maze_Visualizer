@@ -2,12 +2,15 @@ using UnityEngine;
 
 public class VisualNode : MonoBehaviour
 {
+    
     private SpriteRenderer spriteRenderer;
     
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
+    
+    #region METHODS
     
     public void UpdateSpriteRotation(int rotation)
     {
@@ -29,4 +32,7 @@ public class VisualNode : MonoBehaviour
     {
         spriteRenderer.color = newColor;
     }
+    
+    #endregion
+    
 }

@@ -7,22 +7,30 @@ using UnityEngine.UI;
 [DefaultExecutionOrder(-1)]
 public class UIManager : SingletonMonoBehaviour<UIManager>
 {
-    [SerializeField] private TextMeshProUGUI sizeText;
+    
+    #region VARIABLES
+    
+    [SerializeField] private TextMeshProUGUI textCurrentMazeSize;
     [SerializeField] private Slider sliderMazeSize;
     
     [Header("Buttons")]
     [SerializeField] private Button buttonGenerateMaze;
     [SerializeField] private Button buttonGetRandomStartingPoint;
+    [SerializeField] private Button buttonSliderArea;
     [SerializeField] private TMP_Dropdown dropdownAlgorithmSelection;
-    
+
     [Header("Texts")]
-    [SerializeField] private TextMeshProUGUI titleText;
-    [SerializeField] private TextMeshProUGUI speedModiferText;
+    [SerializeField] private TextMeshProUGUI textAlgorithmTitle;
+    [SerializeField] private TextMeshProUGUI textAlgorithmDescriptionTitle;
+    [SerializeField] private TextMeshProUGUI textCurrentSpeedModifier;
     
-    
+    [Header("Algo Description Elements")]
+    [SerializeField] private TextMeshProUGUI textAlgorithmDescription;
     
     [Space(15)]
     [SerializeField] private AlgorithmsDescription algorithmDescription;
+    
+    #endregion
     
     
     protected override void Awake()
@@ -33,28 +41,31 @@ public class UIManager : SingletonMonoBehaviour<UIManager>
 
     private void Start()
     {
+        LoadSavedData();
+        
         sliderMazeSize.onValueChanged.Invoke(sliderMazeSize.value);
+        dropdownAlgorithmSelection.onValueChanged.Invoke(dropdownAlgorithmSelection.value);
     }
-
-
+    
     private void OnEnable()
     {
-        EventManager.OnSizeSliderValueChanged += UpdateSizeText;
+        EventManager.OnSizeSliderValueChanged += UpdateMazeSizeText;
         EventManager.OnMazeGenerationStart += DisableUI;
         EventManager.OnMazeGenerationEnd += EnableUI;
         EventManager.OnSpeedModifierChange += UpdateSpeedModifierText;
     }
-
-
+    
     private void OnDisable()
     {
-        EventManager.OnSizeSliderValueChanged -= UpdateSizeText;
+        EventManager.OnSizeSliderValueChanged -= UpdateMazeSizeText;
         EventManager.OnMazeGenerationStart -= DisableUI;
         EventManager.OnMazeGenerationEnd -= EnableUI;
         EventManager.OnSpeedModifierChange -= UpdateSpeedModifierText;
 
     }
 
+    #region METHODS
+    
     private void GenerateDropdown()
     {
         List<string> algorithmsTitles = new List<string>(); 
@@ -64,34 +75,52 @@ public class UIManager : SingletonMonoBehaviour<UIManager>
         
         dropdownAlgorithmSelection.ClearOptions();
         dropdownAlgorithmSelection.AddOptions(algorithmsTitles);
-        
-        titleText.text = algorithmDescription.Descriptions[0].Title;
+
+        UpdateTitleTexts(0);
     }
 
-    
-    private void UpdateSizeText(int newSize)
+    private void UpdateTitleTexts(int value)
     {
-        sizeText.text = newSize.ToString();
+        textAlgorithmTitle.text = algorithmDescription.Descriptions[value].Title;
+        textAlgorithmDescriptionTitle.text = "How \"" + algorithmDescription.Descriptions[value].Title + "\" algorithm works";
+        textAlgorithmDescription.text = algorithmDescription.Descriptions[value].AlgoDescription;
+    }
+
+
+    private void LoadSavedData()
+    {
+        if (DataManager.HAS_SAVED_SIZE())
+            sliderMazeSize.value = DataManager.GET_SAVED_SIZE();
+        
+        if (DataManager.HAS_SAVED_ALGORITHM())
+            dropdownAlgorithmSelection.value = DataManager.GET_SAVED_ALGORITHM();
+    }
+    
+    private void UpdateMazeSizeText(int newSize)
+    {
+        textCurrentMazeSize.text = newSize.ToString();
     }
 
     public void OnSliderValueChange(Single value)
     {
         EventManager.RaiseOnSizeSliderValueChanged((int)value);
+        
+        DataManager.SAVE_MAZE_SIZE();
     }
 
 
     public void OnDropdownValueChange(int value)
     {
-        titleText.text = algorithmDescription.Descriptions[value].Title;
+        UpdateTitleTexts(value);
         EventManager.RaiseOnDropdownMazeSelectionChanged(value);
+        
+        DataManager.SAVE_MAZE_ALGORITHM(value);
     }
 
     private void UpdateSpeedModifierText(float value)
     {
-        speedModiferText.text = value + "x";
+        textCurrentSpeedModifier.text = value + "x";
     }
-    
-    
     
     private void DisableUI()
     {
@@ -103,11 +132,24 @@ public class UIManager : SingletonMonoBehaviour<UIManager>
         SetUIEnabled(true);
     }
 
-    private void SetUIEnabled(bool enabled)
+    private void SetUIEnabled(bool isEnabled)
     {
-        sliderMazeSize.enabled = enabled;
-        buttonGenerateMaze.enabled = enabled;
-        dropdownAlgorithmSelection.enabled = enabled;
-        buttonGetRandomStartingPoint.enabled = enabled;
+        sliderMazeSize.interactable = isEnabled;
+        buttonGenerateMaze.interactable = isEnabled;
+        dropdownAlgorithmSelection.interactable = isEnabled;
+        buttonGetRandomStartingPoint.interactable = isEnabled;
+        buttonSliderArea.interactable = isEnabled;
     }
+
+    public void QuitApplication()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+    }
+    
+    #endregion
+    
 }

@@ -5,9 +5,12 @@ using UnityEngine;
 
 public class SimplifiedPrims : MazeGenerationBase
 {
+    
     private readonly HashSet<Vector2Int> finishedNodes = new HashSet<Vector2Int>();
     private readonly OrderedDictionary unfinishedNodes = new OrderedDictionary();
     
+    
+    #region METHODS
     
     public override async Task GenerateMaze()
     {
@@ -16,7 +19,7 @@ public class SimplifiedPrims : MazeGenerationBase
         
         AddToUnfinishedNodes(startingNode);
         
-        while (unfinishedNodes.Count > 0 && !MazeFlowManager.Instance.StopMazeGeneration)
+        while (unfinishedNodes.Count > 0 && MazeFlowManager.Instance.IsGeneratingMaze)
             await GenerateMazeStepWithDelay();
         
         OnMazeGenerationFinish();
@@ -62,8 +65,7 @@ public class SimplifiedPrims : MazeGenerationBase
         int randomIndex = Random.Range(0, neighbours.Count);
         AddToUnfinishedNodes(neighbours[randomIndex]);
         
-        (MazeNode fromNode, MazeNode toNode) = MazeManagerHelperFunction.GetNodesFromVector2Int(node, neighbours[randomIndex]);
-        MazeManagerHelperFunction.UpdateNodesAndVisualNodes(fromNode, toNode);
+        MazeManagerHelperFunction.UpdateNodesAndVisualNodes(node, neighbours[randomIndex]);
     }
 
     protected override void AddToUnfinishedNodes(Vector2Int node)
@@ -78,4 +80,6 @@ public class SimplifiedPrims : MazeGenerationBase
         finishedNodes.Add(node);
         unfinishedNodes.Remove(node);
     }
+    
+    #endregion
 }

@@ -1,16 +1,11 @@
-using System;
 using UnityEngine;
 
 public class MazeCameraManager : SingletonMonoBehaviour<MazeCameraManager>
 {
-
+    
     [SerializeField] private Camera mazeCamera;
     
-    protected override void Awake()
-    {
-        base.Awake();
-    }
-
+    
     private void OnEnable()
     {
         EventManager.OnSizeSliderValueChanged += UpdateCameraPositionAndSize;

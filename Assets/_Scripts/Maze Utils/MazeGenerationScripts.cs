@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
-
 public class MazeGenerationScripts
 {
+    
     private List<MazeGenerationBase> mazeCreatingAlgorithms;
     
     public MazeGenerationScripts()
@@ -14,4 +14,5 @@ public class MazeGenerationScripts
     }
     
     public MazeGenerationBase GetAlgoAtIndex(int index) => mazeCreatingAlgorithms[index];
+    
 }

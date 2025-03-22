@@ -2,21 +2,24 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-
 public class RandomizedDFS: MazeGenerationBase
 {
+    
     private readonly Stack<Vector2Int> nodeStack = new Stack<Vector2Int>();
+    
+    
+    #region METHODS
     
     public override async Task GenerateMaze()
     {
         Vector2Int startingNode = MazeFlowManager.Instance.StartingPosition;
         currentNode = startingNode;
         
-        nodeStack.Push(startingNode);
+        AddToUnfinishedNodes(startingNode);
 
-        while (nodeStack.Count > 0 && !MazeFlowManager.Instance.StopMazeGeneration)
+        while (nodeStack.Count > 0 && MazeFlowManager.Instance.IsGeneratingMaze)
             await GenerateMazeStepWithDelay();
-
+        
         OnMazeGenerationFinish();
         CleanHelperDataStructures();
     }
@@ -24,15 +27,17 @@ public class RandomizedDFS: MazeGenerationBase
     protected override void GenerateMazeStep()
     {
         UpdatePreviousNodeValue();
-        UpdateVisualPreviousNode();
 
         currentNode = nodeStack.Pop();
         
-        MazeVisualizer.Instance.SetVisualTintCurrentNode(currentNode);
-        MazeManagerHelperFunction.MarkNodeAsVisited(currentNode);  
-        
         GetAvailableNeighbourNodes(currentNode, IsNeighbourInRandomWalk);
         CheckNeighbours(currentNode);
+
+        if (!nodeStack.TryPeek(out currentNode))
+            return;
+            
+        UpdateVisualPreviousNode();
+        MazeVisualizer.Instance.SetVisualTintCurrentNode(currentNode);
     }
 
     protected override void CleanHelperDataStructures()
@@ -52,17 +57,18 @@ public class RandomizedDFS: MazeGenerationBase
             return;
         
         AddToUnfinishedNodes(node);
-        
         int randomIndex = Random.Range(0, neighbours.Count);
-
         AddToUnfinishedNodes(neighbours[randomIndex]);
 
-        (MazeNode fromNode, MazeNode toNode) = MazeManagerHelperFunction.GetNodesFromVector2Int(node, neighbours[randomIndex]);
-        MazeManagerHelperFunction.UpdateNodesAndVisualNodes(fromNode, toNode);
+        MazeManagerHelperFunction.UpdateNodesAndVisualNodes(node, neighbours[randomIndex]);
     }
     
     protected override void AddToUnfinishedNodes(Vector2Int node)
     {
         nodeStack.Push(node);
+        MazeManagerHelperFunction.MarkNodeAsVisited(node);  
     }
+    
+    #endregion
+    
 }

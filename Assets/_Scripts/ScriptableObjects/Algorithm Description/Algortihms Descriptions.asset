@@ -14,8 +14,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Descriptions:
   - Title: Depth First Search
-    AlgoDescription: 
+    AlgoDescription: "1. Choose the initiall node, mark as visited and push it to
+      the stack\n2. While the stack is not empty:\n\t- Pop a node from a stack and
+      make it a current node\n\t- If current node has any unvisited neighbours\n\t\t-
+      Choose unvisited neighbour at random\n\t\t- Make connection between current
+      node and its selected neighbour\n\t\t- Push this neighbour to the stack and
+      return to step 2"
   - Title: Simplified Prism's
-    AlgoDescription: 
+    AlgoDescription: "1. Choose the initiall node, mark as visited and add it to
+      visited nodes\n2. While there are nodes in the visited nodes:\n\t- Choose a
+      visited node at random. If it has no unvisited neighbours:\n\t\t- Remove this
+      node from visited nodes\n\t\t- Return to step 2 \n\t- Choose an unvisited neighbour
+      of that node at random\n\t- Make connection between current node and its selected
+      neighbour\n\t- Add this neighbour to the visited nodes"
   - Title: Hunt And Kill
-    AlgoDescription: 
+    AlgoDescription: "1. Choose the initiall node and mark as visited\n2. While the
+      current node has unvisited neighbours:\n\t- Choose unvisited neighbour at random\n\t-
+      Make connection between current node and its selected neighbour\n\t- Set that
+      neighbour as current node and mark it as visited\n3. If the current node has
+      no unvisited neighbours:\n\t- Start scanning from the scanning starting position,\n\t\t-
+      If current node was visited, set scanning starting position to current node\n\t\t-
+      If current node was not visited and it has visited neighbour:\n\t\t\t- Make
+      connection between current node and this neightbour\n\t\t\t- Return to step
+      2"
