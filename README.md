@@ -2,7 +2,7 @@
 
 Mazes have always been fascinating, and this project is my way of exploring them through procedural generation. It brings different maze algorithms to life, letting you see how they work in real time.  
 
-![Maze Generation Preview](Assets/Gifs/Main App.gif)  
+![Maze Generation Preview](Assets/Gifs/Main%20App.gif)  
 
 ---
 
@@ -28,15 +28,15 @@ Mazes have always been fascinating, and this project is my way of exploring them
 
 ### Depth First Search  
 Creates long, winding passages with a strong bias towards deep paths.  
-![DFS](Assets/Gifs/DFS Algo.gif)
+![DFS](Assets/Gifs/DFS%20Algo.gif)
 
 ### Simplified Prim's Algorithm  
 Generates more uniform, open mazes by expanding walls randomly.  
-![Prim](Assets/Gifs/Prims Algo.gif)  
+![Prim](Assets/Gifs/Prims%20Algo.gif)  
 
 ### Hunt and Kill  
 An unpredictable mix of random walks and systematic backtracking.  
-![H&K](Assets/Gifs/Hunt & Kill Algo.gif)  
+![H&K](Assets/Gifs/Hunt%20&%20Kill%20Algo.gif)  
 
 ---
 
