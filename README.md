@@ -1,6 +1,6 @@
 # Maze Visualizer  
 
-Mazes have always been fascinating, and this project is my way of exploring them through procedural generation. It brings different maze algorithms to life, letting you see how they work in real time.  
+Mazes have been fascinating me for a while, and this project is my way of exploring them through procedural generation. It brings different maze algorithms to life, letting you see how they work in real time.  
 
 ![Maze Generation Preview](Assets/Gifs/Main%20App.gif)  
 
