@@ -24,15 +24,18 @@ The project is fairly small in scope, but I still like it because it reflects my
 ## Algorithm Previews
 
 ### Depth First Search
-Creates long, winding passages with a strong bias toward deep branching paths.  
+Creates long, winding passages with a strong bias toward deep branching paths.
+
 ![DFS](Assets/Gifs/DFS%20Algo.gif)
 
 ### Simplified Prim’s Algorithm
 Generates more uniform, open mazes by repeatedly selecting adjacent cells and connecting them back to the existing maze.
+
 ![Prim](Assets/Gifs/Prims%20Algo.gif)
 
 ### Hunt & Kill
-Combines random walks with systematic scanning, producing a less predictable generation pattern.  
+Combines random walks with systematic scanning, producing a less predictable generation pattern.
+
 ![Hunt and Kill](Assets/Gifs/Hunt%20&%20Kill%20Algo.gif)
 
 
