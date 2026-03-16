@@ -1,67 +1,41 @@
-# Maze Visualizer  
+# Maze Visualizer
 
-Mazes have been fascinating me for a while, and this project is my way of exploring them through procedural generation. It brings different maze algorithms to life, letting you see how they work in real time.  
+**Maze Visualizer** is a small interactive application built in **Unity** in **March 2025** that visualizes maze generation algorithms in real time.
 
-![Maze Generation Preview](Assets/Gifs/Main%20App.gif)  
+It was created as a short exploratory project while I was transitioning from Unity toward Unreal Engine and C++. The goal was simple: take something I had been curious about for a while - **procedural maze generation** - and turn it into a small interactive tool that made the underlying algorithms easier to observe and compare.
 
----
+![Maze Generation Preview](Assets/Gifs/Main%20App.gif)
 
-## Features  
 
-### 🧩 Maze Generation Algorithms (for now :>)
-- **Depth First Search**  
-- **Simplified Prim’s Algorithm**  
-- **Hunt & Kill**  
+## Project Overview
 
-### ⚙️ Customization Options  
-- Adjustable maze size  
-- Randomized starting point selection  
-- Control over generation speed  
-- Pause, resume, and reset functionality  
+This project was developed in roughly a week as a focused application rather than a full game. Users can choose between multiple maze generation algorithms, adjust maze size, control generation speed, and inspect a short pseudocode summary for each approach.
 
-### 💡 Algorithm Insights  
-- A small info button displays the algorithm’s logic in pseudocode for those interested in the underlying process.  
+The project is fairly small in scope, but I still like it because it reflects my interest in systems, algorithms, and gave me a simple way to explore maze generation in practice.
 
----
 
-## 📌 Algorithm Previews  
+## Included Algorithms
 
-### Depth First Search  
-Creates long, winding passages with a strong bias towards deep paths.  
+- **Depth First Search**
+- **Simplified Prim’s Algorithm**
+- **Hunt & Kill**
+
+
+## Algorithm Previews
+
+### Depth First Search
+Creates long, winding passages with a strong bias toward deep branching paths.  
 ![DFS](Assets/Gifs/DFS%20Algo.gif)
 
-### Simplified Prim's Algorithm  
-Generates more uniform, open mazes by expanding walls randomly.  
-![Prim](Assets/Gifs/Prims%20Algo.gif)  
+### Simplified Prim’s Algorithm
+Generates more uniform, open mazes by repeatedly selecting adjacent cells and connecting them back to the existing maze.
+![Prim](Assets/Gifs/Prims%20Algo.gif)
 
-### Hunt and Kill  
-An unpredictable mix of random walks and systematic backtracking.  
-![H&K](Assets/Gifs/Hunt%20&%20Kill%20Algo.gif)  
+### Hunt & Kill
+Combines random walks with systematic scanning, producing a less predictable generation pattern.  
+![Hunt and Kill](Assets/Gifs/Hunt%20&%20Kill%20Algo.gif)
 
----
 
-## 📥 Try It Out  
+## Try It Out
 
-You can experience the maze visualizer in two ways:  
-
-1. **Download the project and run it in Unity**  
-   - Clone the repository:  
-     ```bash
-     git clone https://github.com/WojtusMientus/maze-visualizer.git
-     cd maze-visualizer
-     ```
-   - Open the project in Unity (version XYZ).  
-   - Run the scene to start visualizing mazes!  
-
-2. **Download the standalone executable from itch.io**  
-   - [▶ Get the latest version on itch.io](https://wojciech-maciejewski.itch.io/)  
-
----
-
-## 🔧 Planned Features  
-✔️ More generation algorithms  
-✔️ Manual start-point selection  
-✔️ Maze-solving visualization  
-✔️ Sound effects  
-
----
+A playable build is available on [itch.io](https://wojciech-maciejewski.itch.io/maze-visualizer).
